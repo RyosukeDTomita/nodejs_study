@@ -1,0 +1,9 @@
+services:
+  node_app: # fixme
+    build:
+      context: ./node_app
+      dockerfile: Dockerfile
+    image: node_app_img:latest
+    container_name: node_app_container
+    #env_file:
+    #  - ./node_app/.env
