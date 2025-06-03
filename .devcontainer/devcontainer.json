@@ -1,15 +1,17 @@
 {
-  "name": "dev-container-test", // 任意の値
-  "dockerComposeFile": [
-    "../compose.yaml",
-    "compose.yaml"
-  ],
-  "service": "node_app", // fixme: compose.yamlのサービス名
+  "name": "node.js",
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "context": ".."
+  },
   "workspaceFolder": "/app",
   "features": {
     "ghcr.io/guiyomh/features/vim:0": {},
     "ghcr.io/dhoeric/features/hadolint:1": {}
   },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached",
+  ],
   "overrideCommand": true,
   "customizations": {
     "vscode": {
@@ -22,7 +24,7 @@
         "mushan.vscode-paste-image",
         "streetsidesoftware.code-spell-checker",
         "VisualStudioExptTeam.vscodeintellicode",
-        "YoavBls.pretty-ts-errors",
+        "YoavBls.pretty-ts-errors"
       ]
     }
   }
