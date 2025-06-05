@@ -4,7 +4,6 @@ import { setTimeout } from "timers/promises";
  * 非ブロッキングI/Oのデモ用リソースクラス
  * name: string - リソースの名前
  * dataQueue: (string | null)[] - データキュー（nullはリソースのクローズを示す）
- * closed: boolean - リソースがクローズされているかどうか
  */
 class Resource {
   name: string;
@@ -19,8 +18,8 @@ class Resource {
    * dataQueueにデータを追加する。
    */
   async addDataQueue(data: string) {
-    console.log(`Adding data to ${this.name}: ${data}`);
     // データ追加の非ブロッキングI/O操作をシミュレート
+    console.log(`Trying to Add data to ${this.name}: ${data}`);
     await setTimeout(3000);
     this.dataQueue.push(data);
   }
@@ -44,15 +43,18 @@ class Resource {
 
   /**
    * データを使用する
-   * @param data
+   * NOTE: ここではコンソールに出力するだけだが，実際には何らかの処理を行うことが想定される。
+   * @param data 使うデータ
    */
   useData(data: string) {
-    console.log(data);
+    console.log("use", data);
   }
 }
 
 /**
  * busy-waiting
+ * リソースを監視し，データが利用可能か確認しつづける。
+ * データが利用可能なデータを読み込み使用する。
  * @param resources - resources: Resource[]
  */
 async function busyWait(resources: Resource[]) {
@@ -68,7 +70,7 @@ async function busyWait(resources: Resource[]) {
         console.log(`Data received on ${resource.name}!`);
         resource.useData(data);
       }
-    }),
+    })
   );
 }
 
@@ -79,6 +81,7 @@ async function main() {
 
   // busyWaitを非同期で開始し、awaitしないことで、後続のコードも実行できるようにする
   const busyWaitPromise = busyWait([socketA, socketB, socketC]);
+  await setTimeout(1000);
 
   // データ追加のシミュレーション
   await socketA.addDataQueue("sample data A");
