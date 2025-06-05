@@ -8,4 +8,6 @@
     "MD010": false, // タブ
     "MD013": false // 長い行
   },
+  // tabSizeを2に設定
+  "editor.tabSize": 2,
 }
