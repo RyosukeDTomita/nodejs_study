@@ -84,7 +84,7 @@ Waiting for data on socketA)...
 
 概要
 
-```marmaid
+```mermaid
 sequenceDiagram
   participant main
   participant demultiplexedWait
@@ -121,7 +121,8 @@ cd /app/non_blocking_io/
 yarn run bundle
 node dist/synchronus_event_demultiplexing.js
 ```
-
+<details>
+<summary>実行例（クリックして展開）</summary>
 ```
 # 動作説明のため#でコメントを追記しています。実際のコードを実行しても表示されません。
 Waiting for events...
@@ -154,3 +155,4 @@ Watching resource: socketA
 Watching resource: socketB
 Watching resource: socketC
 ```
+</details>
