@@ -54,7 +54,7 @@ class Resource {
         this.listeners.push(callback);
     }
     /**
-     * データが準備できたときに登録されたコールバックを呼び出す。
+     * addDataQueue終了時に呼び出され，listenerに登録されたコールバックを実行する。
      */
     emit() {
         for (const listener of this.listeners) {
@@ -68,38 +68,56 @@ class Resource {
  */
 class Demultiplexer {
     /**
-     * 複数のリソースを監視し、データが準備できたリソースのイベントを返す。
-     * @param resources - 監視するリソースの配列
-     * @returns Promise<Event[]> - データが準備できたリソースのイベント
+     * 複数のリソースを管理し，イベントが発生していないResourceにはコールバックを登録する。
+     * イベントが発生したResourceがあれば
+     * @param resources - Resource[] - 監視するリソースの配列
+     * @returns Promise<EventResources[]> - データが準備できたリソースのイベント
      */
     async watch(resources) {
         return new Promise((resolve) => {
-            console.log("Watching resources for data...");
-            const ready = [];
+            // イベントが発生するまでは待機する
+            console.log("Waiting for events...");
+            const ready = []; // イベント発生中のリソースの配列
             let waiting = resources.length;
             for (const resource of resources) {
+                console.log(`Watching resource: ${resource.name}`);
                 resource.read().then((data) => {
-                    if (data !== "NO_DATA_AVAILABLE") {
-                        ready.push({ resource });
-                        waiting--;
-                        if (waiting === 0) {
-                            resolve(ready);
-                        }
-                    }
-                    else {
+                    if (data == "NO_DATA_AVAILABLE") {
+                        // データがない場合にはリソースが準備できたときに呼び出されるコールバック関数として，Promiseを解決する関数を登録する。
                         resource.onDataReady(() => {
                             resolve([{ resource }]);
                         });
+                    }
+                    else {
+                        // データがある場合にはイベント発生中のリソースの配列に追加する。
+                        ready.push({ resource });
+                        waiting--;
+                        if (waiting === 0) {
+                            // NOTE: JSではPromiseオブジェクトを完了するための関数としてresolve()を使用する。
+                            // resolve(ready)がよびだされるとPromiseは完了する。
+                            resolve(ready);
+                        }
                     }
                 });
             }
         });
     }
 }
+/**
+ * 以下を無限ループする
+ * 1. イベント(addDataQueue)が終了するまではwatch()は終了せず，待機する。この歳にデータが準備できた歳に実行するコールバック関数を登録する。
+ * 2. イベント(addDataQueue)が発生する。その終了時にemit()が呼び出され、登録されたコールバックが実行される。
+ * 3. watch()が終了し、データが準備できたResource[]を返す。
+ * 4. Resourceに格納されているデータを読み込み，使用する。
+ *
+ * @param resources
+ */
 async function demultiplexedWait(resources) {
     const demultiplexer = new Demultiplexer();
     while (true) {
+        // NOTE: watch()はリソースの準備ができるまで終了しないので，定期的にリソースを監視するbusy-waitingよりも効率的。
         const events = await demultiplexer.watch(resources);
+        console.log("watch() returned with events:", events.length);
         for (const event of events) {
             console.log(`Event detected from ${event.resource.name}`);
             const data = await event.resource.read();

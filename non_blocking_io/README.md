@@ -74,4 +74,83 @@ Waiting for data on socketA)...
 
 </details>
 
-### synchronus event demultiplexing
+### synchronus event demultiplexing(イベント多重分離)
+
+- busy-waitingよりもマシンリソース面で効率的
+- リソースをまとめて管理し，データが追加等のイベントが発生するまでは待機する。
+- イベントが発生した場合にのみ，そのイベントに対応する処理を実行する。
+
+#### サンプルコードについて
+
+概要
+
+```marmaid
+sequenceDiagram
+  participant main
+  participant demultiplexedWait
+  participant Demultiplexer
+  participant ResourceA
+  participant ResourceB
+  participant ResourceC
+
+  main->>demultiplexedWait: demultiplexedWait([ResourceA, ResourceB, ResourceC])
+  loop 無限ループ
+    demultiplexedWait->>Demultiplexer: watch([ResourceA, ResourceB, ResourceC])
+    Demultiplexer->>ResourceA: read()
+
+    alt watch起動時にデータなし
+      note right of Demultiplexer: Promiseを終了させるコールバック関数を設定
+    else watch起動時に既にデータあり
+      note right of Demultiplexer: すぐにPromiseを完了させてResourceを返す
+    end
+    note right of Demultiplexer: watchはデータが追加されるまで完了しない
+
+    main->>ResourceA: addDataQueue("data A") データ追加
+    ResourceA->>ResourceA: emit() コールバック関数を呼び出す
+    ResourceA-->>Demultiplexer: resolve() watchを完了させる
+    Demultiplexer-->>demultiplexedWait: resolve([{A}]) イベントが発生したリソースが返される
+
+    demultiplexedWait->>ResourceA: read() データの読み込み
+    ResourceA-->>demultiplexedWait: "data A" データの取得
+    demultiplexedWait->>ResourceA: useData("data A") データの使用
+  end
+```
+
+```shell
+cd /app/non_blocking_io/
+yarn run bundle
+node dist/synchronus_event_demultiplexing.js
+```
+
+```
+# 動作説明のため#でコメントを追記しています。実際のコードを実行しても表示されません。
+Waiting for events...
+Watching resource: socketA
+Watching resource: socketB
+Watching resource: socketC
+# すべてのResourceにコールバック関数を設定し，イベントの発生を待つ
+
+# データ追加イベント発生
+Trying to Add data to socketA: sample data A
+Trying to Add data to socketB: sample data B
+
+# watch()が完了する
+watch() returned with events: 1
+Event detected from socketA
+Data received on socketA!
+use sample data A
+Waiting for events...
+Watching resource: socketA
+Watching resource: socketB
+Watching resource: socketC
+
+# データ追加イベント発生(以下略)
+watch() returned with events: 1
+Event detected from socketB
+Data received on socketB!
+use sample data B
+Waiting for events...
+Watching resource: socketA
+Watching resource: socketB
+Watching resource: socketC
+```
