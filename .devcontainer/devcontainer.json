@@ -24,7 +24,8 @@
         "mushan.vscode-paste-image",
         "streetsidesoftware.code-spell-checker",
         "VisualStudioExptTeam.vscodeintellicode",
-        "YoavBls.pretty-ts-errors"
+        "YoavBls.pretty-ts-errors",
+        "bierner.markdown-mermaid"
       ]
     }
   }
