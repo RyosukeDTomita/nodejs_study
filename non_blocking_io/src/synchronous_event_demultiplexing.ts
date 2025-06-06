@@ -92,7 +92,7 @@ class Demultiplexer {
       for (const resource of resources) {
         console.log(`Watching resource: ${resource.name}`);
         resource.read().then((data) => {
-          if (data == "NO_DATA_AVAILABLE") {
+          if (data === "NO_DATA_AVAILABLE") {
             // データがない場合にはリソースが準備できたときに呼び出されるコールバック関数として，Promiseを解決する関数を登録する。
             console.log("set callback for resource:", resource.name);
             resource.onDataReady(() => {
