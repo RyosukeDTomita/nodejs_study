@@ -156,3 +156,36 @@ Watching resource: socketB
 Watching resource: socketC
 ```
 </details>
+
+---
+
+## リアクタパターン
+
+```mermaid
+graph LR
+    subgraph app [Application]
+        direction LR
+        req["Request I/O"]
+        exec["Execute Handler"]
+    end
+
+    subgraph ed [Event Demultiplexer]
+        direction TB
+        r1["Resource | Operation | Handler"]
+    end
+
+    subgraph eq [Event Queue]
+        direction TB
+        e1["Event | Handler"]
+    end
+
+    el((Event Loop))
+
+    %% Connections
+    req -->|1 I/O要求 + 完了時に呼び出すハンドラを指定| ed
+    ed -->|2 イベント生成し，届いたI/O要求をイベントキューに| eq
+    el -->|3 いずれかのイベントの準備できるまで待機| eq
+    el -->|4 イベントの準備ができたのでハンドラを実行| exec
+    exec -.->|5 ハンドラが終了したので次のイベントを処理する| el
+    el -->|6 すべてのイベントが終了したらデマルチプレクサにイベントが追加されるまで待ち| ed
+```
