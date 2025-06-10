@@ -1,6 +1,6 @@
 # Node.js PlayGround
 
-![un license](https://img.shields.io/github/license/RyosukeDTomita/<your-repository>)
+![un license](https://img.shields.io/github/license/RyosukeDTomita/nodejs_study)
 
 ## INDEX
 
