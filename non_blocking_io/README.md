@@ -121,8 +121,10 @@ cd /app/non_blocking_io/
 yarn run bundle
 node dist/synchronus_event_demultiplexing.js
 ```
+
 <details>
 <summary>実行例（クリックして展開）</summary>
+
 ```
 # 動作説明のため#でコメントを追記しています。実際のコードを実行しても表示されません。
 Waiting for events...
@@ -155,6 +157,7 @@ Watching resource: socketA
 Watching resource: socketB
 Watching resource: socketC
 ```
+
 </details>
 
 ---
@@ -188,4 +191,6 @@ graph LR
     el -->|4 イベントの準備ができたのでハンドラを実行| exec
     exec -.->|5 ハンドラが終了したので次のイベントを処理する| el
     el -->|6 すべてのイベントが終了したらデマルチプレクサにイベントが追加されるまで待ち| ed
+
 ```
+
