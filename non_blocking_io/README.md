@@ -126,6 +126,7 @@ node dist/synchronus_event_demultiplexing.js
 <summary>実行例（クリックして展開）</summary>
 
 ```
+node dist/synchronus_event_demultiplexing.js
 # 動作説明のため#でコメントを追記しています。実際のコードを実行しても表示されません。
 Waiting for events...
 Watching resource: socketA
